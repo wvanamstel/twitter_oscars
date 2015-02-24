@@ -10,6 +10,11 @@ from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
 
 def get_data_mongo():
+    '''
+    Connect to mongo data base and put data into a data frame for analysis
+    IN: null
+    OUT: data frame; collected tweet data
+    '''
     # Connect to mongo database and retrieve data
     client = MongoClient()
     db = client.oscar
@@ -25,6 +30,11 @@ def get_data_mongo():
     return df
 
 def analyse_data(df):
+    '''
+    Do analysis of tweet data
+    IN: data frame; consisting of all collected tweet data
+    OUT: stdout
+    '''
     # Plot resampled frequency of tweets
     freq = pd.to_datetime(df.created_at)
     freq.index = freq
@@ -68,7 +78,13 @@ def analyse_data(df):
     hash_cnt = Counter(hashtags).most_common(n=10)
     print '\n'.join(['{0}\t{1}'.format(tag, cnt) for tag, cnt in hash_cnt])
     
+    
 def sentiment(df):
+    '''
+    Do sentiment analysis on tweets that were about the host
+    IN: data frame; tweet data
+    OUT: stdout
+    '''
     # Find tweets referring to the evening's host
     ind = df.text.apply(lambda x: '#nph' in x.lower() or '#neilpatrickharris' in x.lower())    
     raw_text = df[ind].text
@@ -77,14 +93,16 @@ def sentiment(df):
         blob = TextBlob(tweet)
         sentiments.append(blob.sentiment)
     
+    # Plot summarized sentiment and frequency
     indx = pd.to_datetime(df[ind].index)
     sents = [x[0] for x in sentiments]
     sent_ts = pd.Series(sents, index=indx)
-    sent_ts.resample('5Min', how='sum').plot()
-    sent_ts.resample('5Min', how='count').plot(kind='bar')
+    sent_ts.resample('5Min', how='sum').plot(title='Total sentiment')
+    sent_ts.resample('5Min', how='count').plot(kind='bar', title='Frequency of hash tags mentioning host')
+    
     print raw_text['2015-02-23 02:44:01':'2015-02-23 02:44:20']
 
 if __name__=='__main__':
-    #df = get_data_mongo()
-    #analyse_data(df)
+    df = get_data_mongo()
+    analyse_data(df)
     sentiment(df)

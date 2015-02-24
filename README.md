@@ -1,0 +1,1 @@
+Analysis of twitter messages sent during the 2015 Academy Awards. Ipython notebook with analysis can be accessed [here](http://nbviewer.ipython.org/github/wvanamstel/twitter_oscars/blob/master/twitter_ipy.ipynb)
